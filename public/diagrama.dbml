@@ -1,0 +1,55 @@
+Table users{
+    id integer [pk increment]
+    name varchar(255)
+    email varchar(255) [unique]
+    password varchar(255)
+}
+
+Table categories{
+    id integer [pk increment]
+    name varchar(255)
+    description text
+}
+
+Table providers{
+    id integer [pk increment]
+    company varchar(255)
+    name varchar(255)
+    phone varchar(255)
+    email varchar(255)
+    address text
+    description text
+}
+
+Table products{
+    id integer [pk increment]
+    category_id integer [ref: > categories.id]
+
+    code varchar(50) [not null, unique]
+    name varchar(100) [not null]
+    description text
+    image varchar(255)
+    price_purchase decimal(10,2) [not null]
+    price_sale decimal(10,2) [not null]
+    stock_min integer [default 0]
+    stock_max integer [default 0]
+    enabled boolean [default: true]
+}
+
+Table purchases{
+    id integer [pk increment]
+    provider_id integer [ref: > providers.id]
+    date datetime
+    total decimal(10,2)
+    state varchar(50)
+    notes text
+}
+
+Table Purchase_Detail{
+    id integer [pk increment]
+    purchase_id integer [ref: > purchases.id]
+    product_id integer [ref: > products.id]
+    quantity int [not null]
+    price_uni decimal(10,2)
+    subtotal decimal(10,2) //cantidad * precio
+}
