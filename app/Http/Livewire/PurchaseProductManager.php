@@ -53,35 +53,55 @@ class PurchaseProductManager extends Component
     {
         $this->validate();
 
+        $product = Product::find($this->productId);
+        if (!$product) {
+            $this->addError('productId', 'El producto no existe');
+            return;
+        }
+
         DB::beginTransaction();
         try {
+            $this->addOrUpdatePurchaseDetail($product);
+            $this->updateTotal();
 
-            $product = Product::find($this->productId);
-            // Crear el detalle de la compra
+            DB::commit();
+
+            $this->dataLoad();
+            $this->reset(['productId', 'quantity', 'priceUni']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            \Log::error('Error al agregar producto: ' . $e->getMessage());
+            $this->addError('error', 'Error al agregar el producto: ' . $e->getMessage());
+        }
+    }
+
+    private function addOrUpdatePurchaseDetail($product)
+    {
+        $existingDetail = $this->purchase->purchaseDetails()
+            ->where('product_id', $product->id)
+            ->first();
+
+        if ($existingDetail) {
+            $newQuantity = $existingDetail->quantity + $this->quantity;
+            $existingDetail->update([
+                'quantity' => $newQuantity,
+                'subtotal' => $newQuantity * $this->priceUni,
+                'price_uni' => $this->priceUni
+            ]);
+        } else {
             $this->purchase->purchaseDetails()->create([
                 'product_id' => $product->id,
                 'quantity' => $this->quantity,
                 'price_uni' => $this->priceUni,
                 'subtotal' => $this->quantity * $this->priceUni
             ]);
-
-            // Actualizar el total
-            $total = PurchaseDetail::where('purchase_id', $this->purchase->id)->sum('subtotal');
-            $this->purchase->total = $total;
-            $this->purchase->save();
-
-            DB::commit();
-
-            // Recargar los datos
-            $this->purchase->total = $this->purchase->purchaseDetails->sum('subtotal');
-            $this->purchase->save();
-
-            $this->dataLoad();
-        } catch (Exception $e) {
-            DB::rollBack();
-            \Log::error('Error al agregar producto: ' . $e->getMessage());
-            $this->addError('error', 'Error al agregar el producto: ' . $e->getMessage());
         }
+    }
+
+    private function updateTotal()
+    {
+        $total = $this->purchase->purchaseDetails()->sum('subtotal');
+        $this->purchase->update(['total' => $total]);
     }
 
     public function removeItem(int $id)
@@ -113,7 +133,6 @@ class PurchaseProductManager extends Component
         } else {
             $this->reset(['priceUni']);
         }
-        
     }
 
     public function updateQuantity($id, $quantity)
@@ -136,7 +155,6 @@ class PurchaseProductManager extends Component
             \Log::error('Error al actualizar la cantidad en el producto: ' . $e->getMessage());
             $this->addError('error', 'Error al actualizar la cantidad en el producto: ' . $e->getMessage());
         }
-        
     }
 
     public function render()
