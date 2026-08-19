@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Purchase extends Model
 {
@@ -18,11 +19,11 @@ class Purchase extends Model
         'notes',
     ];
 
-    public function purchaseDetails():BelongsToMany
+    public function purchaseDetails(): HasMany
     {
-        return $this->belongsToMany(PurchaseDetail::class);
+        return $this->hasMany(PurchaseDetail::class);
     }
-    public function provider():BelongsTo
+    public function provider(): BelongsTo
     {
         return $this->belongsTo(Provider::class);
     }

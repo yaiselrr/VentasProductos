@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Categories\Tables;
+namespace App\Filament\Resources\Purchases\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -8,14 +8,21 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class CategoriesTable
+class PurchasesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->label('Nombre')
+                TextColumn::make('provider.name')
+                    ->searchable(),
+                TextColumn::make('date')
+                    ->dateTime()
+                    ->sortable(),
+                TextColumn::make('total')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('state')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
