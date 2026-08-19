@@ -36,6 +36,8 @@ class ProductResource extends Resource
             //
         ];
     }
+    // Cambiar el nombre en el menú
+    protected static ?string $navigationLabel = 'Productos';
 
     public static function getPages(): array
     {

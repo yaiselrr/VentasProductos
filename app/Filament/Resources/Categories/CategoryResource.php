@@ -36,6 +36,8 @@ class CategoryResource extends Resource
             //
         ];
     }
+    // Cambiar el nombre en el menú
+    protected static ?string $navigationLabel = 'Categorías';
 
     public static function getPages(): array
     {

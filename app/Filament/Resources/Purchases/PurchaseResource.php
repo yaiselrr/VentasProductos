@@ -37,6 +37,9 @@ class PurchaseResource extends Resource
         ];
     }
 
+    // Cambiar el nombre en el menú
+    protected static ?string $navigationLabel = 'Ordenes';
+
     public static function getPages(): array
     {
         return [

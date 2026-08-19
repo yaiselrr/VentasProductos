@@ -36,6 +36,8 @@ class ProviderResource extends Resource
             //
         ];
     }
+    // Cambiar el nombre en el menú
+    protected static ?string $navigationLabel = 'Proveedores';
 
     public static function getPages(): array
     {

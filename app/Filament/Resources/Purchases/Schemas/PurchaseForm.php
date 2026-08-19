@@ -10,6 +10,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use App\Http\Livewire\PurchaseProductManager;
+use Filament\Forms\Components\RichEditor;
 use Filament\Schemas\Components\Livewire as ComponentsLivewire;
 
 class PurchaseForm
@@ -25,25 +26,25 @@ class PurchaseForm
                     ->collapsed(false) // Opcional: inicia abierto
                     ->schema([
                         Select::make('provider_id')
+                            ->label('Proveedores')
                             ->relationship('provider', 'name')
                             ->required()
                             ->searchable() // Para buscar proveedores
                             ->preload(),
                         DateTimePicker::make('date')
+                            ->label('Fecha')
                             ->required()
                             ->default(now()),
-                        // TextInput::make('state')
-                        //     ->required()
-                        //     ->default('pendiente'),
                         Select::make('state')
+                            ->label('Estado')
                             ->options([
                                 'pendiente' => 'Pendiente',
                                 'completada' => 'Completada',
                                 'cancelada' => 'Cancelada',
                             ]),
-                        Textarea::make('notes')
-                            ->columnSpanFull()
-                            ->rows(3),
+                        RichEditor::make('notes')
+                            ->label('Observaciones')
+                            ->columnSpanFull(),
                     ]),
 
                 // Sección 2: Productos
