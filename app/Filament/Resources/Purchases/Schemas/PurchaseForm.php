@@ -32,9 +32,15 @@ class PurchaseForm
                         DateTimePicker::make('date')
                             ->required()
                             ->default(now()),
-                        TextInput::make('state')
-                            ->required()
-                            ->default('pendiente'),
+                        // TextInput::make('state')
+                        //     ->required()
+                        //     ->default('pendiente'),
+                        Select::make('state')
+                            ->options([
+                                'pendiente' => 'Pendiente',
+                                'completada' => 'Completada',
+                                'cancelada' => 'Cancelada',
+                            ]),
                         Textarea::make('notes')
                             ->columnSpanFull()
                             ->rows(3),
@@ -44,7 +50,7 @@ class PurchaseForm
                 Section::make('Productos')
                     ->collapsible()
                     ->collapsed(false)
-                    ->visible(fn ($livewire) => $livewire->getRecord() !== null)
+                    ->visible(fn($livewire) => $livewire->getRecord() !== null)
                     ->schema([
                         ComponentsLivewire::make(PurchaseProductManager::class, [
                             'purchaseId' => $schema->getRecord()?->id
