@@ -18,7 +18,7 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::Tag;
 
     public static function form(Schema $schema): Schema
     {
@@ -38,6 +38,10 @@ class CategoryResource extends Resource
     }
     // Cambiar el nombre en el menú
     protected static ?string $navigationLabel = 'Categorías';
+    protected static ?string $pluralLabel = 'Categorías';
+    protected static ?string $label = 'Categoría';
+    
+    protected static ?int $navigationSort = 2;
 
     public static function getPages(): array
     {

@@ -15,13 +15,16 @@ class ProvidersTable
         return $table
             ->columns([
                 TextColumn::make('company')
+                    ->label('Empresa')
                     ->searchable(),
                 TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable(),
                 TextColumn::make('phone')
+                    ->label('Teléfono')
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('Email address')
+                    ->label('Correo Electrónico')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()

@@ -36,6 +36,7 @@ class PurchaseForm
                             ->required()
                             ->default(now()),
                         Select::make('state')
+                            ->visible(fn($livewire) => $livewire->getRecord() !== null)
                             ->label('Estado')
                             ->options([
                                 'pendiente' => 'Pendiente',

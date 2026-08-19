@@ -43,6 +43,12 @@
                     Total: ${{ number_format($purchaseTotal, 2) }}
                 </span>
             </div>
+            <div class="flex justify-between items-center mb-4">
+                {{-- <h3 class="text-lg font-semibold">Productos Agregados</h3> --}}
+                <span class="text-xl font-bold text-blue-600">
+                    Total productos: {{ $itemCount }}
+                </span>
+            </div>
 
             @if($purchase && $purchase->purchaseDetails && $purchase->purchaseDetails->count() > 0)
                 <div class="overflow-x-auto">

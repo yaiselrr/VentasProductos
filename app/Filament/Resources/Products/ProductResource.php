@@ -18,7 +18,7 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
 
     public static function form(Schema $schema): Schema
     {
@@ -38,6 +38,10 @@ class ProductResource extends Resource
     }
     // Cambiar el nombre en el menú
     protected static ?string $navigationLabel = 'Productos';
+    protected static ?string $pluralLabel = 'Productos';
+    protected static ?string $label = 'Producto';
+    
+    protected static ?int $navigationSort = 2;
 
     public static function getPages(): array
     {

@@ -18,7 +18,7 @@ class ProviderResource extends Resource
 {
     protected static ?string $model = Provider::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::BuildingStorefront;
 
     public static function form(Schema $schema): Schema
     {
@@ -38,6 +38,10 @@ class ProviderResource extends Resource
     }
     // Cambiar el nombre en el menú
     protected static ?string $navigationLabel = 'Proveedores';
+    protected static ?string $pluralLabel = 'Proveedores';
+    protected static ?string $label = 'Proveedor';
+    
+    protected static ?int $navigationSort = 2;
 
     public static function getPages(): array
     {

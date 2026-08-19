@@ -18,7 +18,7 @@ class PurchaseResource extends Resource
 {
     protected static ?string $model = Purchase::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::ShoppingCart;
 
     public static function form(Schema $schema): Schema
     {
@@ -39,6 +39,11 @@ class PurchaseResource extends Resource
 
     // Cambiar el nombre en el menú
     protected static ?string $navigationLabel = 'Ordenes';
+    protected static ?string $pluralLabel = 'Ordenes';
+    protected static ?string $label = 'Orden';
+    
+    protected static ?int $navigationSort = 2;
+    
 
     public static function getPages(): array
     {

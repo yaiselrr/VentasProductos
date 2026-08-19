@@ -16,25 +16,33 @@ class ProductsTable
         return $table
             ->columns([
                 TextColumn::make('category.name')
+                    ->label('Categoría')
                     ->searchable(),
                 TextColumn::make('code')
+                    ->label('Código')
                     ->searchable(),
                 TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable(),
-                ImageColumn::make('image'),
+                ImageColumn::make('image')->label('Imagen'),
                 TextColumn::make('price_purchase')
+                    ->label('Precio Compra')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('price_sale')
+                    ->label('Precio Venta')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('stock_min')
+                    ->label('Stock Mínimo')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('stock_max')
+                    ->label('Stock Máximo')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('state')
+                    ->label('Estado')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()

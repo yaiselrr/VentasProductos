@@ -6,6 +6,8 @@ namespace App\Http\Livewire;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
+use App\Repositories\PurchaseRepository;
+use App\Services\PurchaseService;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -20,6 +22,14 @@ class PurchaseProductManager extends Component
     public $purchaseTotal;
     public $purchaseId;
 
+    protected PurchaseService $purchaseService;
+
+    // Inyectar el servicio
+    public function boot(PurchaseService $purchaseService)
+    {
+        $this->purchaseService = $purchaseService;
+    }
+
     protected $rules = [
         'productId' => 'required|exists:products,id',
         'quantity' => 'required|numeric|min:1',
@@ -29,13 +39,16 @@ class PurchaseProductManager extends Component
     public function mount()
     {
         if ($this->purchaseId) {
-            $this->purchase = Purchase::with('purchaseDetails')->find($this->purchaseId);
+            $this->purchase = $this->purchaseService->getPurchaseWithDetails($this->purchaseId);
+            $this->products = $this->purchase->purchaseDetails;
+            $this->purchaseTotal = $this->purchase->purchaseDetails->sum('subtotal');
         }
     }
 
     public function dataLoad()
     {
-        $this->purchase->load('purchaseDetails.product');
+        // $this->purchase->load('purchaseDetails.product');
+        $this->purchase = $this->purchaseService->getPurchaseWithDetails($this->purchase->id);
         $this->products = $this->purchase->purchaseDetails;
         $this->purchaseTotal = $this->purchase->purchaseDetails->sum('subtotal');
 
@@ -43,119 +56,60 @@ class PurchaseProductManager extends Component
         $this->quantity = 1;
     }
 
-    private function resetFields()
-    {
-        $this->reset(['productId', 'quantity', 'priceUni']);
-        $this->quantity = 1;
-    }
-
     public function addItems()
     {
         $this->validate();
 
-        $product = Product::find($this->productId);
-        if (!$product) {
-            $this->addError('productId', 'El producto no existe');
-            return;
-        }
-
-        DB::beginTransaction();
         try {
-            $this->addOrUpdatePurchaseDetail($product);
-            $this->updateTotal();
-
-            DB::commit();
+            $this->purchase = $this->purchaseService->addProductToPurchase(
+                $this->purchase,
+                $this->productId,
+                $this->quantity,
+                $this->priceUni
+            );
 
             $this->dataLoad();
             $this->reset(['productId', 'quantity', 'priceUni']);
+            
         } catch (Exception $e) {
-            DB::rollBack();
-            \Log::error('Error al agregar producto: ' . $e->getMessage());
-            $this->addError('error', 'Error al agregar el producto: ' . $e->getMessage());
+            throw $e;
         }
-    }
-
-    private function addOrUpdatePurchaseDetail($product)
-    {
-        $existingDetail = $this->purchase->purchaseDetails()
-            ->where('product_id', $product->id)
-            ->first();
-
-        if ($existingDetail) {
-            $newQuantity = $existingDetail->quantity + $this->quantity;
-            $existingDetail->update([
-                'quantity' => $newQuantity,
-                'subtotal' => $newQuantity * $this->priceUni,
-                'price_uni' => $this->priceUni
-            ]);
-        } else {
-            $this->purchase->purchaseDetails()->create([
-                'product_id' => $product->id,
-                'quantity' => $this->quantity,
-                'price_uni' => $this->priceUni,
-                'subtotal' => $this->quantity * $this->priceUni
-            ]);
-        }
-    }
-
-    private function updateTotal()
-    {
-        $total = $this->purchase->purchaseDetails()->sum('subtotal');
-        $this->purchase->update(['total' => $total]);
     }
 
     public function removeItem(int $id)
     {
-        DB::beginTransaction();
         try {
-            $item = PurchaseDetail::find($id);
-
-            $item->delete();
-            // Recargar los datos
-            $this->purchase->total = $this->purchase->purchaseDetails->sum('subtotal');
-            $this->purchase->save();
-
-            DB::commit();
-
+            $this->purchaseService->removeItem($id);
             $this->dataLoad();
         } catch (Exception $e) {
-            DB::rollBack();
-            \Log::error('Error al eliminar producto: ' . $e->getMessage());
-            $this->addError('error', 'Error al eliminar el producto: ' . $e->getMessage());
+            throw $e;
         }
     }
 
-    public function updatedproductId($value)
+    public function updatedproductId(int $value)
     {
-        $product = Product::find($value);
-        if ($product) {
-            $this->priceUni = $product->price_sale;
+        if ($value) {
+            try {
+                $price = $this->purchaseService->getProductPrice($value);
+                $this->priceUni = $price ?? 0;
+            } catch (Exception $e) {
+                $this->priceUni = 0;
+            }
         } else {
             $this->reset(['priceUni']);
         }
     }
 
-    public function updateQuantity($id, $quantity)
+    public function updateQuantity(int $id, float $quantity)
     {
-        DB::beginTransaction();
         try {
-            $item = PurchaseDetail::find($id);
-            $item->quantity = $quantity;
-            $item->subtotal = $quantity * $item->price_uni;
-            $item->save();
-            // Recargar los datos
-            $this->purchase->total = $this->purchase->purchaseDetails->sum('subtotal');
-            $this->purchase->save();
-
-            DB::commit();
-
+            $this->purchaseService->updateItemQuantity($id, $quantity);
             $this->dataLoad();
         } catch (Exception $e) {
-            DB::rollBack();
-            \Log::error('Error al actualizar la cantidad en el producto: ' . $e->getMessage());
-            $this->addError('error', 'Error al actualizar la cantidad en el producto: ' . $e->getMessage());
+            throw $e;
         }
     }
+
 
     public function render()
     {
@@ -163,7 +117,9 @@ class PurchaseProductManager extends Component
             'availableProducts' => Product::all(),
             'products' => $this->products,
             'total' => $this->total ?? 0,
-            'purchase' => $this->purchase ?? null
+            'purchase' => $this->purchase ?? null,
+            'itemCount' => $this->purchase ? $this->purchaseService->countItems($this->purchase) : 0,
+            'isEmpty' => $this->purchase ? $this->purchaseService->isEmpty($this->purchase) : true
         ]);
     }
 }

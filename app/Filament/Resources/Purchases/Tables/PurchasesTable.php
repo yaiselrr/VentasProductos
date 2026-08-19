@@ -15,14 +15,18 @@ class PurchasesTable
         return $table
             ->columns([
                 TextColumn::make('provider.name')
+                    ->label('Proveedor')
                     ->searchable(),
                 TextColumn::make('date')
+                    ->label('Fecha')
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('total')
+                    ->label('Total')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('state')
+                    ->label('Estado')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
